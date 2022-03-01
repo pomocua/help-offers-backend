@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import ua.pomoc.helpoffers.model.BooleanType;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,4 +32,5 @@ public class HelpOffer extends AbstractEntityModel {
     private Boolean withAnimals;
     private InvitePeriod invitePeriod;
     private String comment;
+
 }

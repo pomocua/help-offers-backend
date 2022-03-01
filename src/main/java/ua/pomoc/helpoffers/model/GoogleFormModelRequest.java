@@ -20,11 +20,11 @@ public class GoogleFormModelRequest extends AbstractModel {
     @JsonProperty("Numer telefonu ")
     private String phoneNumber;
     @JsonProperty("Ile łóżek jest w mieszkaniu dla uchodźców? ")
-    private Integer availablePlaces;
+    private String availablePlaces;
     @JsonProperty("Czy można mieszkać ze zwierzętami? ")
-    private Boolean withAnimals;
+    private String withAnimals;
     @JsonProperty("Jak długo są gotowi przyjąć uchodźcę? ")
-    private InvitePeriod invitePeriod;
+    private String invitePeriod;
     @JsonProperty("Osobiste komentarze ")
     private String comment;
 

@@ -37,7 +37,7 @@ public class DatabaseHelpOfferService implements DatabaseService<HelpOffer, Long
     }
 
     @Override
-    public HelpOffer save(HelpOffer type) throws RuntimeException {
+    public HelpOffer save(HelpOffer type)  {
         return helpOfferRepository.save(type);
     }
 

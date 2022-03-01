@@ -2,7 +2,6 @@ package ua.pomoc.helpoffers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -25,6 +24,7 @@ public abstract class AbstractHelpOfferModel extends AbstractModel {
     public AbstractHelpOfferModel(String fullName, String phoneNumber, String address, Integer availablePlaces, Boolean withAnimals, InvitePeriod invitePeriod, String comment) {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
+        this.address = address;
         this.availablePlaces = availablePlaces;
         this.withAnimals = withAnimals;
         this.invitePeriod = invitePeriod;

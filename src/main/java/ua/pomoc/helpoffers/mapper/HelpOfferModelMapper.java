@@ -2,6 +2,7 @@ package ua.pomoc.helpoffers.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 import ua.pomoc.helpoffers.domain.HelpOffer;
 import ua.pomoc.helpoffers.model.CityModel;
 import ua.pomoc.helpoffers.model.GoogleFormModelRequest;

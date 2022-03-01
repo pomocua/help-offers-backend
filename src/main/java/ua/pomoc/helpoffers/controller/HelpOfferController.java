@@ -1,6 +1,7 @@
 package ua.pomoc.helpoffers.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ua.pomoc.helpoffers.domain.HelpOffer;
 import ua.pomoc.helpoffers.domain.InvitePeriod;
+import ua.pomoc.helpoffers.mapper.GoogleFormsModelMapper;
+import ua.pomoc.helpoffers.mapper.HelpOfferModelMapper;
 import ua.pomoc.helpoffers.model.EmptyModel;
 import ua.pomoc.helpoffers.model.GoogleFormModelRequest;
 import ua.pomoc.helpoffers.model.HelpOfferModelRequest;
@@ -30,21 +33,21 @@ public class HelpOfferController {
 
     private DatabaseHelpOfferService helpOfferService;
     private DatabaseCityService cityService;
+    private GoogleFormsModelMapper googleMapper;
 
-    public HelpOfferController(
-            DatabaseHelpOfferService helpOfferService,
-            DatabaseCityService cityService
-    ) {
+    public HelpOfferController(DatabaseHelpOfferService helpOfferService, DatabaseCityService cityService, GoogleFormsModelMapper googleMapper) {
         this.helpOfferService = helpOfferService;
         this.cityService = cityService;
+        this.googleMapper = googleMapper;
     }
 
     @GetMapping
     public HttpMessage getAll() {
         HttpMessage httpMessage = new HttpMessage();
+        HelpOfferModelMapper mapper = Mappers.getMapper(HelpOfferModelMapper.class);
         try {
             httpMessage.setContent(
-                    helpOfferService.findAll().stream().map(MAPPER::toResponseModel).collect(Collectors.toList()));
+                    helpOfferService.findAll().stream().map(mapper::toResponseModel).collect(Collectors.toList()));
             httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
         } catch (Exception e) {
             httpMessage.setMessage(new StatusMessage(Code.ERROR, e.getMessage()));
@@ -70,15 +73,16 @@ public class HelpOfferController {
     }
 
     @PostMapping
-    public HttpMessage save(@RequestBody GoogleFormModelRequest request) {
+    public HttpMessage save(@RequestBody GoogleFormModelRequest googleRequest) {
         HttpMessage httpMessage = new HttpMessage();
         StatusMessage message = new StatusMessage();
         try {
+            HelpOfferModelRequest request = googleMapper.toHelpOfferRequest(googleRequest);
             HelpOfferModelResponse response = MAPPER.toResponseModel(
                     helpOfferService.save(new HelpOffer(
                             request.getFullName(),
                             request.getPhoneNumber(),
-                            cityService.findByName(request.getCity()),
+                            cityService.findById(request.getCity()),
                             request.getAddress(),
                             request.getAvailablePlaces(),
                             request.getWithAnimals(),
