@@ -1,18 +1,18 @@
-package ua.pomoc.helpoffers.controller;
+package ua.pomoc.helpoffers.controller.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ua.pomoc.helpoffers.domain.HelpOffer;
 import ua.pomoc.helpoffers.domain.InvitePeriod;
 import ua.pomoc.helpoffers.mapper.GoogleFormsModelMapper;
-import ua.pomoc.helpoffers.mapper.HelpOfferModelMapper;
 import ua.pomoc.helpoffers.model.EmptyModel;
+import ua.pomoc.helpoffers.model.FilterModel;
 import ua.pomoc.helpoffers.model.GoogleFormModelRequest;
 import ua.pomoc.helpoffers.model.HelpOfferModelRequest;
 import ua.pomoc.helpoffers.model.HelpOfferModelResponse;
@@ -22,7 +22,7 @@ import ua.pomoc.helpoffers.model.message.StatusMessage;
 import ua.pomoc.helpoffers.service.DatabaseCityService;
 import ua.pomoc.helpoffers.service.DatabaseHelpOfferService;
 
-import java.util.stream.Collectors;
+import java.util.logging.Filter;
 
 import static ua.pomoc.helpoffers.mapper.HelpOfferModelMapper.MAPPER;
 
@@ -42,12 +42,16 @@ public class HelpOfferController {
     }
 
     @GetMapping
-    public HttpMessage getAll() {
+    public HttpMessage getAll(
+            @RequestParam Long city,
+            @RequestParam Integer availablePlaces,
+            @RequestParam Boolean withAnimals,
+            @RequestParam InvitePeriod invitePeriod
+    ) {
         HttpMessage httpMessage = new HttpMessage();
-        HelpOfferModelMapper mapper = Mappers.getMapper(HelpOfferModelMapper.class);
         try {
-            httpMessage.setContent(
-                    helpOfferService.findAll().stream().map(mapper::toResponseModel).collect(Collectors.toList()));
+            httpMessage.setContent(helpOfferService.findAllByCityAndAvailablePlacesAndWithAnimalsAndInvitePeriod(
+                            cityService.findById(city), availablePlaces, withAnimals, invitePeriod));
             httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
         } catch (Exception e) {
             httpMessage.setMessage(new StatusMessage(Code.ERROR, e.getMessage()));

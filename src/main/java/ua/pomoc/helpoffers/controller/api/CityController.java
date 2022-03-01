@@ -1,4 +1,4 @@
-package ua.pomoc.helpoffers.controller;
+package ua.pomoc.helpoffers.controller.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
