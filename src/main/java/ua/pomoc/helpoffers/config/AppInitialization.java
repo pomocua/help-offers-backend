@@ -3,17 +3,15 @@ package ua.pomoc.helpoffers.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Service;
-import ua.pomoc.helpoffers.service.DatabaseCityService;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import ua.pomoc.helpoffers.service.FileCityService;
 
-@Order(0)
-@Configuration
+@Component
 @Slf4j
-public class AppInitialization implements ApplicationRunner {
+public class AppInitialization {
 
     private FileCityService fileCityService;
 
@@ -21,8 +19,8 @@ public class AppInitialization implements ApplicationRunner {
         this.fileCityService = fileCityService;
     }
 
-    @Override
-    public void run(ApplicationArguments args) {
+    @EventListener(value = ApplicationReadyEvent.class, condition = "@databaseCityService.count() == 0")
+    public void init() {
         fileCityService.saveAll();
         log.info("Initialization completed");
     }
