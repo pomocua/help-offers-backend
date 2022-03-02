@@ -1,6 +1,7 @@
 package ua.pomoc.helpoffers.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import ua.pomoc.helpoffers.domain.City;
 import ua.pomoc.helpoffers.exception.BusinessException;
@@ -59,5 +60,9 @@ public class DatabaseCityService implements DatabaseService<City, Long> {
     @Override
     public void delete(City type) {
         cityRepository.delete(type);
+    }
+
+    public Long count() {
+        return cityRepository.count();
     }
 }
