@@ -12,7 +12,6 @@ import ua.pomoc.helpoffers.domain.HelpOffer;
 import ua.pomoc.helpoffers.domain.InvitePeriod;
 import ua.pomoc.helpoffers.mapper.GoogleFormsModelMapper;
 import ua.pomoc.helpoffers.model.EmptyModel;
-import ua.pomoc.helpoffers.model.FilterModel;
 import ua.pomoc.helpoffers.model.GoogleFormModelRequest;
 import ua.pomoc.helpoffers.model.HelpOfferModelRequest;
 import ua.pomoc.helpoffers.model.HelpOfferModelResponse;
@@ -21,8 +20,9 @@ import ua.pomoc.helpoffers.model.message.Code;
 import ua.pomoc.helpoffers.model.message.StatusMessage;
 import ua.pomoc.helpoffers.service.DatabaseCityService;
 import ua.pomoc.helpoffers.service.DatabaseHelpOfferService;
+import ua.pomoc.helpoffers.service.DefaultHelpOfferService;
 
-import java.util.logging.Filter;
+import java.util.List;
 
 import static ua.pomoc.helpoffers.mapper.HelpOfferModelMapper.MAPPER;
 
@@ -31,11 +31,13 @@ import static ua.pomoc.helpoffers.mapper.HelpOfferModelMapper.MAPPER;
 @Slf4j
 public class HelpOfferController {
 
-    private DatabaseHelpOfferService helpOfferService;
+    private DatabaseHelpOfferService dbHelpOfferService;
+    private DefaultHelpOfferService helpOfferService;
     private DatabaseCityService cityService;
     private GoogleFormsModelMapper googleMapper;
 
-    public HelpOfferController(DatabaseHelpOfferService helpOfferService, DatabaseCityService cityService, GoogleFormsModelMapper googleMapper) {
+    public HelpOfferController(DatabaseHelpOfferService dbHelpOfferService, DefaultHelpOfferService helpOfferService, DatabaseCityService cityService, GoogleFormsModelMapper googleMapper) {
+        this.dbHelpOfferService = dbHelpOfferService;
         this.helpOfferService = helpOfferService;
         this.cityService = cityService;
         this.googleMapper = googleMapper;
@@ -46,12 +48,15 @@ public class HelpOfferController {
             @RequestParam Long city,
             @RequestParam Integer availablePlaces,
             @RequestParam Boolean withAnimals,
-            @RequestParam InvitePeriod invitePeriod
+            @RequestParam InvitePeriod invitePeriod,
+            @RequestParam Integer perPage,
+            @RequestParam Integer page
     ) {
         HttpMessage httpMessage = new HttpMessage();
         try {
-            httpMessage.setContent(helpOfferService.findAllByCityAndAvailablePlacesAndWithAnimalsAndInvitePeriod(
-                            cityService.findById(city), availablePlaces, withAnimals, invitePeriod));
+            List<HelpOffer> filteredHelpOffers = dbHelpOfferService.findAllByCityAndAvailablePlacesAndWithAnimalsAndInvitePeriod(
+                    cityService.findById(city), availablePlaces, withAnimals, invitePeriod);
+            httpMessage.setContent(helpOfferService.byPage(filteredHelpOffers, perPage, page));
             httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
         } catch (Exception e) {
             httpMessage.setMessage(new StatusMessage(Code.ERROR, e.getMessage()));
@@ -66,7 +71,7 @@ public class HelpOfferController {
     public HttpMessage getById(@PathVariable Long id) {
         HttpMessage httpMessage = new HttpMessage();
         try {
-            httpMessage.setContent(MAPPER.toResponseModel(helpOfferService.findById(id)));
+            httpMessage.setContent(MAPPER.toResponseModel(dbHelpOfferService.findById(id)));
             httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
         } catch (Exception e) {
             httpMessage.setMessage(new StatusMessage(Code.ERROR, e.getMessage()));
@@ -83,7 +88,7 @@ public class HelpOfferController {
         try {
             HelpOfferModelRequest request = googleMapper.toHelpOfferRequest(googleRequest);
             HelpOfferModelResponse response = MAPPER.toResponseModel(
-                    helpOfferService.save(new HelpOffer(
+                    dbHelpOfferService.save(new HelpOffer(
                             request.getFullName(),
                             request.getPhoneNumber(),
                             cityService.findById(request.getCity()),
