@@ -10,21 +10,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ua.pomoc.helpoffers.domain.HelpOffer;
 import ua.pomoc.helpoffers.domain.InvitePeriod;
+import ua.pomoc.helpoffers.exception.BusinessException;
 import ua.pomoc.helpoffers.mapper.GoogleFormsModelMapper;
 import ua.pomoc.helpoffers.model.EmptyModel;
-import ua.pomoc.helpoffers.model.GoogleFormModelRequest;
-import ua.pomoc.helpoffers.model.HelpOfferModelRequest;
-import ua.pomoc.helpoffers.model.HelpOfferModelResponse;
-import ua.pomoc.helpoffers.model.HttpMessage;
-import ua.pomoc.helpoffers.model.message.Code;
-import ua.pomoc.helpoffers.model.message.StatusMessage;
+import ua.pomoc.helpoffers.model.dto.GoogleFormModelRequest;
+import ua.pomoc.helpoffers.model.dto.HelpOfferModelRequest;
+import ua.pomoc.helpoffers.model.dto.HelpOfferModelResponse;
+import ua.pomoc.helpoffers.model.PaginationModel;
+import ua.pomoc.helpoffers.model.message.HttpMessage;
+import ua.pomoc.helpoffers.model.message.HttpMessageParametrized;
+import ua.pomoc.helpoffers.model.message.HttpCode;
+import ua.pomoc.helpoffers.model.message.HttpMessageStatus;
 import ua.pomoc.helpoffers.service.DatabaseCityService;
 import ua.pomoc.helpoffers.service.DatabaseHelpOfferService;
 import ua.pomoc.helpoffers.service.DefaultHelpOfferService;
 
+import javax.persistence.EntityNotFoundException;
+import java.nio.BufferOverflowException;
 import java.util.List;
+import java.util.Optional;
 
 import static ua.pomoc.helpoffers.mapper.HelpOfferModelMapper.MAPPER;
+import static ua.pomoc.helpoffers.model.message.HttpMessageProducer.created;
+import static ua.pomoc.helpoffers.model.message.HttpMessageProducer.found;
+import static ua.pomoc.helpoffers.model.message.HttpMessageProducer.notFound;
+import static ua.pomoc.helpoffers.model.message.HttpMessageProducer.operationFailed;
+import static ua.pomoc.helpoffers.model.message.HttpMessageProducer.writingError;
 
 @RestController
 @RequestMapping("/offers")
@@ -45,46 +56,41 @@ public class HelpOfferController {
 
     @GetMapping
     public HttpMessage getAll(
-            @RequestParam Long city,
-            @RequestParam Integer availablePlaces,
-            @RequestParam Boolean withAnimals,
-            @RequestParam InvitePeriod invitePeriod,
+            @RequestParam(required = false) Long city,
+            @RequestParam(required = false) Integer availablePlaces,
+            @RequestParam(required = false) Boolean withAnimals,
+            @RequestParam(required = false) InvitePeriod invitePeriod,
             @RequestParam Integer perPage,
             @RequestParam Integer page
     ) {
-        HttpMessage httpMessage = new HttpMessage();
+        HttpMessageParametrized httpMessage = new HttpMessageParametrized();
         try {
-            List<HelpOffer> filteredHelpOffers = dbHelpOfferService.findAllByCityAndAvailablePlacesAndWithAnimalsAndInvitePeriod(
-                    cityService.findById(city), availablePlaces, withAnimals, invitePeriod);
-            httpMessage.setContent(helpOfferService.byPage(filteredHelpOffers, perPage, page));
-            httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
-        } catch (Exception e) {
-            httpMessage.setMessage(new StatusMessage(Code.ERROR, e.getMessage()));
-            httpMessage.setContent(new EmptyModel());
-            log.error(e.getMessage());
+            List<HelpOffer> filteredHelpOffers = dbHelpOfferService.findAllByFilter(
+                    cityService.findById(city).getId(), availablePlaces, withAnimals, invitePeriod);
+            List<HelpOffer> pagedHelpOffers = helpOfferService.byPage(filteredHelpOffers, perPage, page);
+            httpMessage.setBody(pagedHelpOffers);
+            httpMessage.setParameters(new PaginationModel((long) pagedHelpOffers.size(), (long) page, (long) perPage));
+            httpMessage.setMessage(new HttpMessageStatus(HttpCode.FOUND, HttpCode.FOUND.name()));
+        } catch (NullPointerException | BusinessException e) {
+            return notFound(e.getMessage());
         }
         return httpMessage;
-
     }
 
     @GetMapping("/{id}")
     public HttpMessage getById(@PathVariable Long id) {
-        HttpMessage httpMessage = new HttpMessage();
+        HttpMessage httpMessage;
         try {
-            httpMessage.setContent(MAPPER.toResponseModel(dbHelpOfferService.findById(id)));
-            httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
-        } catch (Exception e) {
-            httpMessage.setMessage(new StatusMessage(Code.ERROR, e.getMessage()));
-            httpMessage.setContent(new EmptyModel());
-            log.error(e.getMessage());
+            HelpOfferModelResponse response = MAPPER.toResponseModel(dbHelpOfferService.findById(id));
+            httpMessage = found(response);
+        } catch (NullPointerException | BusinessException e) {
+            httpMessage = notFound(e.getMessage());
         }
         return httpMessage;
     }
 
     @PostMapping
     public HttpMessage save(@RequestBody GoogleFormModelRequest googleRequest) {
-        HttpMessage httpMessage = new HttpMessage();
-        StatusMessage message = new StatusMessage();
         try {
             HelpOfferModelRequest request = googleMapper.toHelpOfferRequest(googleRequest);
             HelpOfferModelResponse response = MAPPER.toResponseModel(
@@ -97,16 +103,10 @@ public class HelpOfferController {
                             request.getWithAnimals(),
                             request.getInvitePeriod(),
                             request.getComment())));
-            httpMessage.setContent(response);
-            httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
+            return created(response);
         } catch (Exception e) {
-            message.setCode(Code.ERROR);
-            message.setDetails(e.getMessage());
-            httpMessage.setContent(new EmptyModel());
-            httpMessage.setMessage(message);
-            log.error(e.getMessage());
+            return writingError(e);
         }
-        return httpMessage;
     }
 
 }

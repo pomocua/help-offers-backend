@@ -3,7 +3,7 @@ package ua.pomoc.helpoffers.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import ua.pomoc.helpoffers.domain.City;
-import ua.pomoc.helpoffers.model.CityModel;
+import ua.pomoc.helpoffers.model.dto.CityModel;
 
 import java.util.Collection;
 import java.util.List;

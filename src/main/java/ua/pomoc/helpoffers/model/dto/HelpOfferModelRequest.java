@@ -1,10 +1,11 @@
-package ua.pomoc.helpoffers.model;
+package ua.pomoc.helpoffers.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import ua.pomoc.helpoffers.domain.InvitePeriod;
+import ua.pomoc.helpoffers.model.AbstractHelpOfferModel;
 
 
 @Data

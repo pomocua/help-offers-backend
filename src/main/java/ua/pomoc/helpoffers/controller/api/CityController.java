@@ -4,15 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ua.pomoc.helpoffers.model.EmptyModel;
-import ua.pomoc.helpoffers.model.HttpMessage;
-import ua.pomoc.helpoffers.model.message.Code;
-import ua.pomoc.helpoffers.model.message.StatusMessage;
+import ua.pomoc.helpoffers.model.dto.CityModel;
+import ua.pomoc.helpoffers.model.message.HttpMessage;
 import ua.pomoc.helpoffers.service.DatabaseCityService;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static ua.pomoc.helpoffers.mapper.CityModelMapper.MAPPER;
+import static ua.pomoc.helpoffers.model.message.HttpMessageProducer.found;
+import static ua.pomoc.helpoffers.model.message.HttpMessageProducer.readingError;
 
 @RestController
 @RequestMapping("/cities")
@@ -27,15 +28,13 @@ public class CityController {
 
     @GetMapping
     public HttpMessage getAll() {
-        HttpMessage httpMessage = new HttpMessage();
+        HttpMessage httpMessage;
         try {
-            httpMessage.setContent(cityService.findAll().stream()
-                    .map(MAPPER::toResponse).collect(Collectors.toList()));
-            httpMessage.setMessage(new StatusMessage(Code.SUCCESS, Code.SUCCESS.name()));
+            List<CityModel> cities = cityService.findAll().stream()
+                    .map(MAPPER::toResponse).collect(Collectors.toList());
+            httpMessage = found(cities);
         } catch (Exception e) {
-            httpMessage.setMessage(new StatusMessage(Code.ERROR, e.getMessage()));
-            httpMessage.setContent(new EmptyModel());
-            log.error(e.getMessage());
+            httpMessage = readingError(e);
         }
         return httpMessage;
     }

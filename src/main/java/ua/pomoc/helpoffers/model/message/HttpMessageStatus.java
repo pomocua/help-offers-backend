@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatusMessage {
-    private Code code;
+public class HttpMessageStatus {
+    private HttpCode code;
     private String details;
 }

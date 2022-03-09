@@ -1,10 +1,10 @@
-package ua.pomoc.helpoffers.model;
+package ua.pomoc.helpoffers.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import ua.pomoc.helpoffers.domain.InvitePeriod;
+import ua.pomoc.helpoffers.model.AbstractModel;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

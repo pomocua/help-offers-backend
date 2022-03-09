@@ -17,17 +17,13 @@ public class DatabaseHelpOfferService implements DatabaseService<HelpOffer, Long
     
     private HelpOfferRepository helpOfferRepository;
 
-    public DatabaseHelpOfferService(HelpOfferRepository helpOfferRepository) {
+    public DatabaseHelpOfferService(HelpOfferRepository helpOfferRepository, DatabaseCityService dbCityService) {
         this.helpOfferRepository = helpOfferRepository;
     }
 
     @Override
     public List<HelpOffer> findAll() {
-        List<HelpOffer> helpOffers = new ArrayList<>();
-        for (HelpOffer helpOffer : helpOfferRepository.findAll()) {
-            helpOffers.add(helpOffer);
-        }
-        return helpOffers;
+        return helpOfferRepository.findAll();
     }
 
     @Override
@@ -38,15 +34,11 @@ public class DatabaseHelpOfferService implements DatabaseService<HelpOffer, Long
         });
     }
 
-    public List<HelpOffer> findAllByCityAndAvailablePlacesAndWithAnimalsAndInvitePeriod(
-            City city, Integer availablePlaces, Boolean withAnimals, InvitePeriod invitePeriod
+    public List<HelpOffer> findAllByFilter(
+            Long cityId, Integer availablePlaces, Boolean withAnimals, InvitePeriod invitePeriod
     ) {
-        List<HelpOffer> helpOffers = new ArrayList<>();
-        for (HelpOffer helpOffer : helpOfferRepository
-                .findAllByCityAndAvailablePlacesAndWithAnimalsAndInvitePeriod(city, availablePlaces, withAnimals, invitePeriod)) {
-            helpOffers.add(helpOffer);
-        }
-        return helpOffers;
+        return helpOfferRepository.
+                findAllByParameters(cityId, availablePlaces, withAnimals, invitePeriod.toString());
     }
 
     @Override

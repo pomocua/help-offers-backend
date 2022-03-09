@@ -22,11 +22,7 @@ public class DatabaseCityService implements DatabaseService<City, Long> {
 
     @Override
     public List<City> findAll() {
-        List<City> cities = new ArrayList<>();
-        for (City city : cityRepository.findAll()) {
-            cities.add(city);
-        }
-        return cities;
+        return cityRepository.findAll();
     }
 
     @Override
@@ -50,11 +46,7 @@ public class DatabaseCityService implements DatabaseService<City, Long> {
     }
 
     public List<City> saveAll(List<City> cities) {
-        List<City> newCities = new ArrayList<>();
-        for (City city : cityRepository.saveAll(cities)) {
-            newCities.add(city);
-        }
-        return newCities;
+        return cityRepository.saveAll(cities);
     }
 
     @Override
