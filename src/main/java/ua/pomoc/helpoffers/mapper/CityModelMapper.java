@@ -13,9 +13,9 @@ public interface CityModelMapper {
 
     CityModelMapper MAPPER = Mappers.getMapper(CityModelMapper.class);
 
-    List<CityModel> toResponse(Collection<City> city);
+    List<CityModel> toModel(Collection<City> city);
 
-    default CityModel toResponse(City city) {
+    default CityModel toModel(City city) {
         return new CityModel(city.getId(), city.getName());
     }
 

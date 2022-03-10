@@ -1,0 +1,26 @@
+### get new token
+POST localhost:8080/api/token
+
+### create offer
+POST localhost:8080/api/offers
+Authorization: Bearer 70fa9d80-5ba4-4937-b8f3-e61c821cc91c
+Content-Type: application/json
+
+{
+  "Pełne imię i nazwisko ": "Tomazs Komak",
+  "Miejscowość": "Warsaw",
+  "Adres mieszkania ": "Some address 11-11111",
+  "Numer telefonu ": "+48 123 456 789",
+  "Ile łóżek jest w mieszkaniu dla uchodźców? ": "2",
+  "Czy można mieszkać ze zwierzętami? ": "Nie",
+  "Jak długo są gotowi przyjąć uchodźcę? ": "FIVE_DAYS",
+  "Osobiste komentarze ": "Some comment"
+}
+
+### get offers by parameters
+GET localhost:8080/api/offers?page=1&perPage=4&city=1
+Authorization: Bearer 82367408-0c93-4a62-bb7f-e2b9e50d42b2
+
+### get cache user
+GET localhost:8080/api/token
+Authorization: Bearer 750f40f4-1344-4406-9ca9-8947de4e7c69

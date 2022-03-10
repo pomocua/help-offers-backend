@@ -3,6 +3,7 @@ package ua.pomoc.helpoffers.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.annotation.SessionScope;
+import ua.pomoc.helpoffers.mapper.CityModelMapper;
 import ua.pomoc.helpoffers.model.CacheUser;
 import ua.pomoc.helpoffers.model.FilterModel;
 import ua.pomoc.helpoffers.model.PaginationModel;
@@ -32,7 +33,7 @@ public class CacheUserConfig {
                 new Date().getTime() + THIRTY_MINUTES,
                 new FilterModel(),
                 new PaginationModel(
-                        (long) dbCityService.findAll().size(),
+                        (long) (CityModelMapper.MAPPER.toModel(dbCityService.findAll()).size()),
                         1L,
                         1L
                 )

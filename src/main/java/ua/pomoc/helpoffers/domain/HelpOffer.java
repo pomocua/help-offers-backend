@@ -1,5 +1,6 @@
 package ua.pomoc.helpoffers.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,6 +20,7 @@ public class HelpOffer extends AbstractEntityModel {
 
     private String fullName;
     private String phoneNumber;
+    @JsonBackReference
     @ManyToOne
     private City city;
     private String address;

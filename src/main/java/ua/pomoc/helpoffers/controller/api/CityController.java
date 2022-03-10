@@ -31,7 +31,7 @@ public class CityController {
         HttpMessage httpMessage;
         try {
             List<CityModel> cities = cityService.findAll().stream()
-                    .map(MAPPER::toResponse).collect(Collectors.toList());
+                    .map(MAPPER::toModel).collect(Collectors.toList());
             httpMessage = found(cities);
         } catch (Exception e) {
             httpMessage = readingError(e);
